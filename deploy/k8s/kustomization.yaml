@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: techops-learning
+resources:
+  - namespace.yaml
+  - postgres.yaml
+  - redis.yaml
+  - backend.yaml
+  - frontend.yaml
+  - bootstrap-job.yaml
+  - scheduler.yaml
+configMapGenerator:
+  - name: techops-config
+    envs:
+      - config.env
+  - name: techops-nginx
+    files:
+      - default.conf=nginx.conf
+  - name: techops-bootstrap
+    files:
+      - bootstrap.php
+  - name: techops-bootstrap-mode
+    literals:
+      - SEED_INITIAL_DATA=false
+generatorOptions:
+  disableNameSuffixHash: true
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: techops-learning
+    includeSelectors: false

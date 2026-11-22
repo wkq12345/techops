@@ -1,0 +1,106 @@
+/* Rebrand the application here. Components consume semantic tokens only. */
+:root {
+  color-scheme: light;
+  background: var(--background);
+  color: var(--foreground);
+  --background: #f1f4f8;
+  --surface: #ffffff;
+  --surface-subtle: #f5f8fc;
+  --surface-header: #edf3fa;
+  --border: #d7e0eb;
+  --primary: #2563a6;
+  --primary-hover: #1d4e85;
+  --primary-soft: #e7f0fc;
+  --primary-border: #bfd2ed;
+  --on-primary: #ffffff;
+  --foreground: #202833;
+  --muted: #647080;
+  --success: #24724b;
+  --success-soft: #edf6f0;
+  --warning: #b33f3b;
+  --warning-soft: #fbefee;
+  --danger: #b33f3b;
+  --danger-soft: #fbefee;
+  --inverse-surface: #202833;
+  --inverse-foreground: #ffffff;
+  --inverse-muted: #c2cad4;
+  /* Navigation tokens follow the active theme and can be rebranded separately. */
+  --nav-surface: #f4f8fd;
+  --nav-border: #d3dfed;
+  --nav-foreground: #20344d;
+  --nav-muted: #51657e;
+  --nav-hover: #e9f0f9;
+  --nav-selected: #dbeafa;
+  --nav-accent: #2563a6;
+  --overlay: rgba(20, 28, 38, .35);
+  --shadow-menu: 0 3px 10px rgba(20, 28, 38, .08);
+  --font-body: 'Segoe UI', Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-lg: 16px;
+  --text-title: 24px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --nav-width: 216px;
+  --nav-collapsed-width: 56px;
+  --ink: var(--foreground);
+  --line: var(--border);
+  --teal: var(--primary);
+  --teal-dark: var(--primary-hover);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #101722;
+  --surface: #182230;
+  --surface-subtle: #1e2b3b;
+  --surface-header: #223247;
+  --border: #34465d;
+  --primary: #80b8f8;
+  --primary-hover: #a2cdfb;
+  --primary-soft: #203b5a;
+  --primary-border: #42648b;
+  --on-primary: #102039;
+  --foreground: #e5edf6;
+  --muted: #a2b1c3;
+  --success: #81d6a5;
+  --success-soft: #183d30;
+  --warning: #f39b97;
+  --warning-soft: #482b31;
+  --danger: #f39b97;
+  --danger-soft: #482b31;
+  --inverse-surface: #dbe5f1;
+  --inverse-foreground: #182230;
+  --inverse-muted: #43546b;
+  --nav-surface: var(--surface);
+  --nav-border: var(--border);
+  --nav-foreground: var(--foreground);
+  --nav-muted: var(--muted);
+  --nav-hover: var(--surface-subtle);
+  --nav-selected: var(--primary-soft);
+  --nav-accent: var(--primary);
+  --overlay: rgba(4, 9, 17, .65);
+  --shadow-menu: 0 3px 10px rgba(0, 0, 0, .3);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-muted: var(--muted);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-body);
+  --radius-control: var(--radius-md);
+}

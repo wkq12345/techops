@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: techops-bootstrap-local
+  labels:
+    app.kubernetes.io/component: bootstrap
+spec:
+  suspend: true
+  backoffLimit: 0
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: bootstrap
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: bootstrap
+          image: techops-k8s-backend:local
+          imagePullPolicy: Never
+          command: [php, /bootstrap/bootstrap.php]
+          envFrom:
+            - configMapRef: {name: techops-config}
+            - secretRef: {name: techops-secrets}
+          env:
+            - name: SEED_INITIAL_DATA
+              valueFrom:
+                configMapKeyRef: {name: techops-bootstrap-mode, key: SEED_INITIAL_DATA}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: 750m, memory: 512Mi}
+          volumeMounts:
+            - name: bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+      volumes:
+        - name: bootstrap
+          configMap:
+            name: techops-bootstrap

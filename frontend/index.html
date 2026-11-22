@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <script>
+      // Apply the saved theme before the UI paints to avoid a light-mode flash.
+      (() => {
+        let theme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        try {
+          const saved = localStorage.getItem('techops-theme')
+          if (saved === 'light' || saved === 'dark') theme = saved
+        } catch { /* System preference works when storage is blocked. */ }
+        document.documentElement.dataset.theme = theme
+      })()
+    </script>
+    <title>TechOps Management</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

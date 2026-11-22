@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app: techops-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels:
+      app: techops-redis
+  template:
+    metadata:
+      labels:
+        app: techops-redis
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: redis
+          image: redis:7.4-alpine
+          args: [redis-server, --save, "", --appendonly, "no", --maxmemory, 128mb, --maxmemory-policy, allkeys-lru]
+          ports:
+            - containerPort: 6379
+          resources:
+            requests: {cpu: 50m, memory: 32Mi}
+            limits: {cpu: 250m, memory: 192Mi}
+          startupProbe:
+            exec: {command: [redis-cli, ping]}
+            periodSeconds: 3
+            failureThreshold: 20
+          readinessProbe:
+            exec: {command: [redis-cli, ping]}
+            periodSeconds: 5
+          livenessProbe:
+            exec: {command: [redis-cli, ping]}
+            periodSeconds: 10
