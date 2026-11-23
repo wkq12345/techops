@@ -29,6 +29,8 @@ class InventorySalesTest extends TestCase
 
         $service = app(SalesService::class);
         $order = $service->create(['customer_id' => $customer->id, 'warehouse_id' => $warehouse->id, 'items' => [['product_id' => $product->id, 'quantity' => 2]]]);
+        $this->assertEquals($warehouse->id, $order->warehouse_id);
+        $this->assertEquals($warehouse->id, $order->items->sole()->warehouse_id);
         $this->assertEquals(2, InventoryStock::query()->value('reserved_quantity'));
 
         $service->complete($order, ['method' => 'cash']);

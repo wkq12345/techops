@@ -32,20 +32,20 @@ class GeneratedRecordCodesTest extends TestCase
             'suppliers' => ['suppliers', 'supplier_code', 'SUP', ['company_name' => 'Supplier'], 'company_name'],
             'products' => ['products', 'sku', 'PRD', ['name' => 'Product', 'product_type' => 'physical', 'tracking_type' => 'quantity', 'cost_price' => 10, 'selling_price' => 20], 'name'],
             'warehouses' => ['warehouses', 'code', 'WH', ['name' => 'Warehouse'], 'name'],
-            'bins' => ['warehouse-bins', 'code', 'BIN', ['zone' => 'Zone'], 'zone'],
-            'warranties' => ['warranties', 'number', 'WAR', ['warranty_start' => '2026-10-07', 'warranty_end' => '2027-10-07', 'warranty_type' => 'standard'], 'warranty_type'],
+            'bins' => ['warehouse-bins', 'code', 'BIN', ['name' => 'Shelf A', 'zone' => 'Zone'], 'name'],
+            'warranties' => ['warranties', 'number', 'WAR', ['warranty_months' => 12], 'status', 'void'],
             'claims' => ['warranty-claims', 'number', 'WCL', ['issue' => 'Issue'], 'issue'],
         ];
     }
 
     #[DataProvider('resources')]
-    public function test_codes_are_generated_sequentially_and_cannot_be_supplied_or_changed(string $resource, string $field, string $prefix, array $payload, string $editable): void
+    public function test_codes_are_generated_sequentially_and_cannot_be_supplied_or_changed(string $resource, string $field, string $prefix, array $payload, string $editable, string $updatedValue = 'Updated'): void
     {
         if ($resource === 'warehouse-bins') {
             $payload['warehouse_id'] = Warehouse::query()->create(['code' => 'LEGACY-WH', 'name' => 'Warehouse'])->id;
         }
         if ($resource === 'warranty-claims') {
-            $payload['warranty_id'] = app(DomainResourceService::class)->create('warranties', ['warranty_start' => '2026-10-07', 'warranty_end' => '2027-10-07', 'warranty_type' => 'standard'])->id;
+            $payload['warranty_id'] = app(DomainResourceService::class)->create('warranties', ['warranty_months' => 12])->id;
         }
 
         $this->postJson("/api/v1/{$resource}", [...$payload, $field => 'MANUAL'])
@@ -58,9 +58,9 @@ class GeneratedRecordCodesTest extends TestCase
 
         $this->putJson("/api/v1/{$resource}/{$id}", [...$payload, $field => 'REPLACED'])
             ->assertUnprocessable()->assertJsonValidationErrors($field);
-        $this->putJson("/api/v1/{$resource}/{$id}", [...$payload, $editable => 'Updated'])
+        $this->putJson("/api/v1/{$resource}/{$id}", [...$payload, $editable => $updatedValue])
             ->assertOk()->assertJsonPath("data.{$field}", "{$prefix}-000001")
-            ->assertJsonPath("data.{$editable}", 'Updated');
+            ->assertJsonPath("data.{$editable}", $updatedValue);
 
         $this->postJson("/api/v1/{$resource}", $payload)
             ->assertCreated()->assertJsonPath("data.{$field}", "{$prefix}-000002");

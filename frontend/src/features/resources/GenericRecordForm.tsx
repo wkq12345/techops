@@ -40,7 +40,12 @@ export function GenericRecordForm({ resource, initial, onCancel, onSaved }: {
     { title: 'Pricing and stock rules', fields: fields.filter(field => ['cost_price', 'selling_price', 'warranty_months', 'reorder_level'].includes(field.name)) },
     { title: 'Details and availability', fields: fields.filter(field => ['description', 'status'].includes(field.name)) },
   ] : [{ title: '', fields }]
-  const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map(field => [field.name, String(field.name === 'warranty_months' && initial ? warrantyDurationMonths(initial.warranty_start, initial.warranty_end) : initial?.[field.name] ?? field.defaultValue ?? '')])))
+  const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map(field => {
+    const value = resource === 'warranties' && field.name === 'warranty_months' && initial
+      ? warrantyDurationMonths(initial.warranty_start, initial.warranty_end)
+      : initial?.[field.name] ?? field.defaultValue ?? ''
+    return [field.name, String(value)]
+  })))
   const sources = [...new Set(fields.flatMap(field => field.source ? [field.source] : []))]
   const catalogs = useQuery({
     queryKey: ['catalog', 'record-form', ...sources],
@@ -87,7 +92,7 @@ export function GenericRecordForm({ resource, initial, onCancel, onSaved }: {
         {field.required && !values[field.name] && <option value="">Select {field.label.toLowerCase()}</option>}
         {(field.options ?? choices.map(row => ({ value: String(row.id), label: field.source === 'categories' ? categoryPath(row, rows) : catalogLabel(field.source ?? '', row) }))).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select> : field.kind === 'textarea' ? <textarea rows={3} value={values[field.name]} required={field.required} onChange={event => setValues(current => ({ ...current, [field.name]: event.target.value }))} />
-        : <input type={field.kind ?? 'text'} min={field.kind === 'number' ? field.name === 'warranty_months' ? '1' : '0' : undefined} step={field.kind === 'number' ? 'any' : undefined} required={field.required} value={values[field.name]} onChange={event => setValues(current => ({ ...current, [field.name]: event.target.value }))} />}
+        : <input type={field.kind ?? 'text'} min={field.kind === 'number' ? (resource === 'warranties' ? 1 : 0) : undefined} step={field.kind === 'number' ? 'any' : undefined} required={field.required} value={values[field.name]} onChange={event => setValues(current => ({ ...current, [field.name]: event.target.value }))} />}
     </Field>
   }
 

@@ -21,6 +21,11 @@ Only confirmed/processing orders complete. Only uncompleted draft/confirmed/proc
 
 Data: sales_orders -> optional customer; items snapshot product/location/unit and cost/price. Lists expose customer_name.
 
+Each line stores its own warehouse and bin. The order header stores a warehouse
+when the lines resolve to exactly one warehouse. Orders spanning multiple
+warehouses leave the header warehouse empty. Older clients can still supply a
+header warehouse as a fallback for lines that omit it.
+
 Sources: [SalesService](../../backend/app/Services/SalesService.php), [controller](../../backend/app/Http/Controllers/Api/V1/SalesOrderController.php), [form](../../frontend/src/features/resources/SalesOrderCreateForm.tsx).
 
 This is not a partial-payment ledger or external gateway integration.

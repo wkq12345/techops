@@ -16,7 +16,9 @@ Purpose: stable server-owned references without manual entry.
 
 Codes use a six-digit minimum numeric portion, e.g. CUS-000001. RecordCodeService locks a record_code_sequences row, starts beyond matching legacy codes and checks collisions. Allocation can roll back with record creation. Existing references remain unchanged.
 
-Forms omit code fields; request validation prohibits manual values. IDs are distinct and need not match code suffixes.
+Create forms hide generated code fields. Edit forms display the assigned code
+as read-only. Both omit the code from submissions, and request validation
+rejects manual values. IDs are distinct from code suffixes.
 
 Orders, repairs, builds, receipts, invoices and returns retain separate timestamp/random document generators. Real serial/IMEI values are not generated.
 

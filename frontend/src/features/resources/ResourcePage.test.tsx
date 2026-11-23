@@ -54,7 +54,7 @@ describe('module actions', () => {
     ['products', 'New product', 'Create product'],
     ['warehouses', 'New warehouse', 'Create warehouse'],
     ['warehouse-bins', 'New inventory location', 'Create inventory location'],
-    ['warranties', 'New record', 'Create warranties'],
+    ['warranties', 'New warranty', 'Create warranty'],
     ['inventory', 'Adjust stock', 'Adjust stock'],
     ['inventory', 'Transfer stock', 'Transfer stock'],
     ['repairs', 'New repair', 'Open repair job'],
@@ -78,13 +78,13 @@ describe('module actions', () => {
 
 describe('record edit modals', () => {
   it.each([
-    ['customers', 'Customer code', 'customer_code', 'Name', 'name'],
-    ['suppliers', 'Supplier code', 'supplier_code', 'Company name', 'company_name'],
-    ['products', 'SKU', 'sku', 'Product name', 'name'],
-    ['warehouses', 'Code', 'code', 'Warehouse name', 'name'],
-    ['warranties', 'Warranty number', 'number', 'Warranty type', 'warranty_type'],
-  ])('opens the %s editor with an immutable code and saves editable fields', async (resource, label, field, editableLabel, editableField) => {
-    const row = { id: 4, [field]: 'ORIGINAL', name: 'Original record', company_name: 'Supplier', product_type: 'physical', tracking_type: 'quantity', status: 'active', warranty_type: 'standard' }
+    ['customers', 'Customer code', 'customer_code', 'Name', { name: 'UPDATED' }, 'UPDATED'],
+    ['suppliers', 'Supplier code', 'supplier_code', 'Company name', { company_name: 'UPDATED' }, 'UPDATED'],
+    ['products', 'SKU', 'sku', 'Product name', { name: 'UPDATED', warranty_months: 0 }, 'UPDATED'],
+    ['warehouses', 'Code', 'code', 'Warehouse name', { name: 'UPDATED' }, 'UPDATED'],
+    ['warranties', 'Warranty number', 'number', 'Warranty period', { warranty_months: 24 }, '24'],
+  ] as const)('opens the %s editor with an immutable code and saves editable fields', async (resource, label, field, editableLabel, expected, value) => {
+    const row = { id: 4, [field]: 'ORIGINAL', name: 'Original record', company_name: 'Supplier', product_type: 'physical', tracking_type: 'quantity', status: 'active', warranty_months: 0, warranty_start: '2026-01-31', warranty_end: '2027-01-31' }
     vi.spyOn(apiClient, 'get').mockImplementation(async url => ({ data: { data: String(url).endsWith(`/${resource}`) ? [row] : [] } }) as never)
     const put = vi.spyOn(apiClient, 'put').mockResolvedValue({ data: { data: row } } as never)
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -94,10 +94,13 @@ describe('record edit modals', () => {
     const input = within(dialog).getByLabelText(new RegExp(`^${label}`))
     expect(input).toHaveValue('ORIGINAL')
     expect(input).toHaveAttribute('readonly')
-    fireEvent.change(within(dialog).getByLabelText(new RegExp(`^${editableLabel}`)), { target: { value: 'UPDATED' } })
-    // Submit directly to exercise endpoint wiring; browser constraint checks are native.
-    fireEvent.submit(dialog.querySelector('form')!)
-    await waitFor(() => expect(put).toHaveBeenCalledWith(`/api/v1/${resource}/4`, expect.objectContaining({ [editableField]: 'UPDATED' })))
+    const editable = within(dialog).getByLabelText(new RegExp(`^${editableLabel}`))
+    if (resource === 'warranties') expect(editable).toHaveValue(12)
+    fireEvent.change(editable, { target: { value } })
+    const submit = within(dialog).getByRole('button', { name: resource === 'products' ? 'Save changes' : 'Save record' })
+    await waitFor(() => expect(submit).toBeEnabled())
+    fireEvent.click(submit)
+    await waitFor(() => expect(put).toHaveBeenCalledWith(`/api/v1/${resource}/4`, expect.objectContaining(expected)))
     expect(put.mock.calls[0][1]).not.toHaveProperty(field)
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })

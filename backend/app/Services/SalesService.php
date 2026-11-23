@@ -50,7 +50,14 @@ class SalesService
                 }
             }
             unset($input);
-            $order = SalesOrder::query()->create(['number' => $this->number('SO'), 'customer_id' => $data['customer_id'] ?? null, 'warehouse_id' => $locationIds->first() ?? ($data['warehouse_id'] ?? null), 'status' => 'confirmed', 'notes' => $data['notes'] ?? null, 'created_by' => auth()->id()]);
+            $order = SalesOrder::query()->create([
+                'number' => $this->number('SO'),
+                'customer_id' => $data['customer_id'] ?? null,
+                'warehouse_id' => $locationIds->count() === 1 ? $locationIds->first() : null,
+                'status' => 'confirmed',
+                'notes' => $data['notes'] ?? null,
+                'created_by' => auth()->id(),
+            ]);
             $subtotal = 0;
             foreach ($inputs as $index => $input) {
                 $product = $products->get($input['product_id']);
