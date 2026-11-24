@@ -17,7 +17,12 @@ x-laravel-env: &laravel-env
   CACHE_STORE: database
   QUEUE_CONNECTION: database
   MAIL_MAILER: log
-  LOG_CHANNEL: stderr
+  LOG_CHANNEL: stderr  
+  APP_URL: http://localhost:15173
+  FRONTEND_URL: http://localhost:15173
+  SANCTUM_STATEFUL_DOMAINS: "localhost:15173,127.0.0.1:15173"
+  SESSION_SECURE_COOKIE: "false"
+
 
 services:
   postgres:
