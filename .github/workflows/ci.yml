@@ -146,6 +146,6 @@ jobs:
           context: ./frontend
           push: true
           build-args: |
-            VITE_API_URL=http://localhost:8000
+            VITE_API_URL=
           tags: ${{ steps.ecr.outputs.registry }}/techops-frontend:${{ github.sha }}
 
