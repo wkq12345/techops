@@ -93,3 +93,48 @@ jobs:
           build-args: |
             VITE_API_URL=http://localhost:8000
           tags: techops-frontend:ci
+        
+  publish-ecr:
+    name: Publish Images to ECR
+    runs-on: ubuntu-latest
+    needs: [frontend, backend, docker-build]
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/techops-backend:${{ github.sha }}
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          build-args: |
+            VITE_API_URL=http://localhost:8000
+          tags: ${{ steps.ecr.outputs.registry }}/techops-frontend:${{ github.sha }}
+
