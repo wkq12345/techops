@@ -1,0 +1,73 @@
+
+x-laravel-env: &laravel-env
+  APP_NAME: TechOps
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_KEY: ${APP_KEY}
+  APP_URL: http://localhost:8000
+  DB_CONNECTION: pgsql
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_DATABASE: techops
+  DB_USERNAME: techops
+  DB_PASSWORD: ${DB_PASSWORD}
+  REDIS_CLIENT: phpredis
+  REDIS_HOST: redis
+  SESSION_DRIVER: database
+  CACHE_STORE: database
+  QUEUE_CONNECTION: database
+  MAIL_MAILER: log
+  LOG_CHANNEL: stderr
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: techops
+      POSTGRES_USER: techops
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U techops -d techops"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+
+  backend:
+    image: ${ECR_REGISTRY}/techops-backend:${IMAGE_TAG}
+    environment: *laravel-env
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  scheduler:
+    image: ${ECR_REGISTRY}/techops-backend:${IMAGE_TAG}
+    environment: *laravel-env
+    command:
+      - sh
+      - -c
+      - "while true; do php artisan schedule:run --no-interaction; sleep 60; done"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    image: ${ECR_REGISTRY}/techops-frontend:${IMAGE_TAG}
+    ports:
+      - "127.0.0.1:5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
