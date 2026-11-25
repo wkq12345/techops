@@ -4,10 +4,10 @@ x-laravel-env: &laravel-env
   APP_ENV: production
   APP_DEBUG: "false"
   APP_KEY: ${APP_KEY}
-  APP_URL: http://localhost:15173
-  FRONTEND_URL: http://localhost:15173
-  SANCTUM_STATEFUL_DOMAINS: "localhost:15173,127.0.0.1:15173"
-  SESSION_SECURE_COOKIE: "false"
+  APP_URL: https://techops-demo.duckdns.org
+  FRONTEND_URL: https://techops-demo.duckdns.org
+  SANCTUM_STATEFUL_DOMAINS: "techops-demo.duckdns.org"
+  SESSION_SECURE_COOKIE: "true"
   DB_CONNECTION: pgsql
   DB_HOST: postgres
   DB_PORT: "5432"
@@ -72,5 +72,22 @@ services:
       - backend
     restart: unless-stopped
 
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
+
 volumes:
   postgres-data:
+  caddy-data:
+  caddy-config:
