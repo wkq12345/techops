@@ -94,6 +94,15 @@ jobs:
             VITE_API_URL=http://localhost:8000
           tags: techops-frontend:ci
         
+      - name: Validate EC2 Compose configuration
+        env:
+          ECR_REGISTRY: example.invalid
+          IMAGE_TAG: ci
+          DB_PASSWORD: validation-only
+          APP_KEY: validation-only
+        run: docker compose -f compose.ec2.yml config --quiet
+
+        
   publish-ecr:
     name: Publish Images to ECR
     runs-on: ubuntu-latest
@@ -132,11 +141,12 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
+      
       - name: Build and push backend
         uses: docker/build-push-action@v6
         with:
           context: ./backend
+          file: ./backend/Dockerfile.production
           push: true
           tags: ${{ steps.ecr.outputs.registry }}/techops-backend:${{ github.sha }}
 
@@ -147,5 +157,7 @@ jobs:
           push: true
           build-args: |
             VITE_API_URL=
+            NGINX_CONFIG=nginx.production.conf
           tags: ${{ steps.ecr.outputs.registry }}/techops-frontend:${{ github.sha }}
+
 

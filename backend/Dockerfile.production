@@ -1,0 +1,25 @@
+
+FROM php:8.3-fpm-alpine
+
+RUN apk add --no-cache postgresql-dev $PHPIZE_DEPS \
+    && docker-php-ext-install pdo_pgsql \
+    && pecl install redis-6.3.0 \
+    && docker-php-ext-enable redis \
+    && apk del $PHPIZE_DEPS
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+
+RUN composer install --no-dev --prefer-dist --no-interaction --no-scripts --optimize-autoloader
+
+COPY . .
+
+RUN php artisan package:discover --ansi \
+    && chown -R www-data:www-data storage bootstrap/cache
+
+EXPOSE 9000
+
+CMD ["php-fpm"]

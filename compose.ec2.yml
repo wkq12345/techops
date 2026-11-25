@@ -47,8 +47,6 @@ services:
   backend:
     image: ${ECR_REGISTRY}/techops-backend:${IMAGE_TAG}
     environment: *laravel-env
-    ports:
-      - "127.0.0.1:8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
