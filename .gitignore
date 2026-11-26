@@ -6,3 +6,8 @@ frontend/dist/
 .idea/
 .vscode/
 deploy/k8s/.local/
+.env.ec2
+.env.ec2.*
+/backups/
+*.dump
+*.backup
