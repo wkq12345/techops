@@ -1,0 +1,10 @@
+[Unit]
+Description=TechOps PostgreSQL Backup to S3
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/sbin/techops-backup
