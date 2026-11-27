@@ -1,7 +1,7 @@
 FROM php:8.3-cli-alpine
 
 RUN apk add --no-cache postgresql-dev $PHPIZE_DEPS \
-    && docker-php-ext-install pdo_pgsql \
+    && docker-php-ext-install pdo_pgsql pgsql \
     && pecl install redis-6.3.0 \
     && docker-php-ext-enable redis \
     && apk del $PHPIZE_DEPS

@@ -10,6 +10,7 @@ Code-reviewed on 2026-11-21. These guides describe implementation, not a claim t
 - [Database relationships and safety](architecture/database.md)
 - [API contracts and endpoint coverage](architecture/api.md)
 - [Development, deployment and troubleshooting](operations.md)
+- [Backend health checks](health-checks.md)
 
 ## Module guides
 
